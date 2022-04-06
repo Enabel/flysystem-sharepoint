@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  phpqa:
+    image: jakzal/phpqa:php${PHP_VERSION:-8.0}
+    working_dir: /project
+    user: "${USER_ID:-1000}:${GROUP_ID:-1000}"
+    volumes:
+      - app-data:/project
+      - app-temp:/tmp
+
+volumes:
+  app-data:
+    driver_opts:
+      type: none
+      device: ${PWD}
+      o: bind
+  app-temp:
+    driver_opts:
+      type: none
+      device: ${PWD}/tmp
+      o: bind

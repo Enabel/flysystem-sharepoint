@@ -7,7 +7,11 @@ This package contains a dapater for Flysystem to work with Sharepoint (Graph API
 
 ## Installation
 
-TODO
+You can install the package via composer:
+
+``` bash
+composer require enabel/flysystem-sharepoint
+```
 
 ## Usage
 
@@ -34,6 +38,34 @@ You need to request a new clientId and clientSecret for a new application on Azu
 14. The last parameter will be the sharepoint 'slug', this is part of the url of the sharepoint site what you want to use and creation of sharepoint site is out of scope of this readme.  
     When you sharepoint url is like `https://{tenant}.sharepoint.com/sites/{site-slug}/Shared%20Documents/Forms/AllItems.aspx`  
     You need to set the `$sharepointSite` as `{site-slug}`
+
+Example:    
+- Sharepoint site url: `https://enabelbe.sharepoint.com/sites/test-storage/Shared%20Documents/Forms/AllItems.aspx`
+- Sharepoint site variable:  `$sharepointSite = 'test-storage'`
+
+
+``` php
+use Enabel\Sharepoint\Flysystem\FlysystemSharepointAdapter;
+use Enabel\Sharepoint\Flysystem\SharepointConnector;
+use League\Flysystem\Filesystem;
+
+$tenantId = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
+$clientId = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
+$clientSecret = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+$sharepointSite = 'your-path-to-your-site';
+
+$connector = new SharepointConnector($tenantId, $clientId, $clientSecret, $sharepointSite);
+
+$adapter = new FlysystemSharepointAdapter($connector);
+
+$flysystem = new Filesystem($adapter);
+```
+
+## Tests
+
+``` bash
+$ make tests
+```
 
 ## License
 

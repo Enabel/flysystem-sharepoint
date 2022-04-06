@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- https://phpunit.readthedocs.io/en/latest/configuration.html -->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         backupGlobals="false"
+         colors="true"
+         convertDeprecationsToExceptions="false"
+>
+    <php>
+        <ini name="display_errors" value="1" />
+        <ini name="error_reporting" value="-1" />
+        <server name="SHELL_VERBOSITY" value="-1" />
+    </php>
+
+    <testsuites>
+        <testsuite name="Flysystem adapter">
+            <directory>tests/</directory>
+        </testsuite>
+    </testsuites>
+
+    <coverage processUncoveredFiles="true" cacheDirectory="tmp/cache/coverage">
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+        <report>
+            <html outputDirectory="tmp/coverage" lowUpperBound="35" highLowerBound="60"/>
+            <text outputFile="php://stdout" showUncoveredFiles="true" showOnlySummary="true"/>
+            <clover outputFile="tmp/coverage/clover.xml"/>
+            <cobertura outputFile="tmp/coverage/cobertura.xml"/>
+            <crap4j outputFile="tmp/coverage/crap4j.xml" />
+        </report>
+    </coverage>
+</phpunit>
