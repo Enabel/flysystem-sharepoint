@@ -10,62 +10,37 @@ use GuzzleHttp\RequestOptions;
 
 class FileService
 {
-    /** @var ApiConnector|null $apiConnector */
-    private ?ApiConnector $apiConnector;
-
-    /** @var string $driveId */
+    private ApiConnector $apiConnector;
     private string $driveId;
+    private DirectoryService $directoryService;
 
-    /**  @var DirectoryService $folderService */
-    private DirectoryService $folderService;
-
-    /**
-     * @param string $accessToken
-     * @param int $requestTimeout
-     * @param bool $verify
-     */
     public function __construct(
         string $accessToken,
         string $driveId,
-        int    $requestTimeout = 60,
-        bool   $verify = true
-    )
-    {
+        int $requestTimeout = 60,
+        bool $verify = true
+    ) {
         $this->setApiConnector(new ApiConnector($accessToken, $requestTimeout, $verify));
         $this->setDriveId($driveId);
-        $this->folderService = new DirectoryService($accessToken, $driveId, $requestTimeout, $verify);
+        $this->directoryService = new DirectoryService($accessToken, $driveId, $requestTimeout, $verify);
     }
 
-    /**
-     * @return ApiConnector|null
-     */
-    public function getApiConnector(): ?ApiConnector
+    public function getApiConnector(): ApiConnector
     {
         return $this->apiConnector;
     }
 
-    /**
-     * @param ApiConnector|null $apiConnector
-     * @return FileService
-     */
-    public function setApiConnector(?ApiConnector $apiConnector): FileService
+    public function setApiConnector(ApiConnector $apiConnector): FileService
     {
         $this->apiConnector = $apiConnector;
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getDriveId(): string
     {
         return $this->driveId;
     }
 
-    /**
-     * @param string $driveId
-     * @return FileService
-     */
     public function setDriveId(string $driveId): FileService
     {
         $this->driveId = $driveId;
@@ -73,33 +48,8 @@ class FileService
     }
 
     /**
-     * @param string|null $path
-     * @param string|null $itemId
-     * @return string
-     * @throws Exception
-     */
-    private function getFileBaseUrl(?string $path = null, ?string $itemId = null, ?string $suffix = null): string
-    {
-        if ($path === null && $itemId === null) {
-            throw new \Exception('Microsoft SP Drive Request: Not all the parameters are correctly set. ' . __FUNCTION__, 2211);
-        }
-
-        // /drives/{drive-id}/items/{item-id}
-        // /drives/{drive-id}/root:/{item-path}
-        // https://docs.microsoft.com/en-us/graph/api/driveitem-get?view=graph-rest-1.0&tabs=http
-        if ($itemId !== null) {
-            return sprintf('/v1.0/drives/%s/items/%s%s', $this->getDriveId(), $itemId, ($suffix ?? ''));
-        }
-        $path = ltrim($path, '/');
-        return sprintf('/v1.0/drives/%s/items/root:/%s%s', $this->getDriveId(), $path, ($suffix !== null ? ':'.$suffix : ''));
-    }
-
-    /**
      * Read or Download the content of a file by ItemId
      *
-     * @param string|null $path
-     * @param string|null $itemId
-     * @return string
      * @throws Exception
      */
     public function readFile(?string $path = null, ?string $itemId = null): string
@@ -110,8 +60,6 @@ class FileService
     }
 
     /**
-     * @param string|null $path
-     * @param string|null $itemId
      * @return array
      * @throws Exception
      */
@@ -125,35 +73,31 @@ class FileService
             return null;
         }
 
-        if ( ! isset($response['id'], $response['name'], $response['webUrl'])) {
-            throw new \Exception('Microsoft SP Drive Request: Cannot parse the body of the sharepoint drive request. ' . __FUNCTION__, 2221);
+        if (! isset($response['id'], $response['name'], $response['webUrl'])) {
+            throw new \Exception(
+                'Microsoft SP Drive Request: Cannot parse the body of the sharepoint drive request. ' . __FUNCTION__,
+                2221
+            );
         }
 
         return $response;
     }
 
-
     /**
-     * @param string|null $path
-     * @param string|null $itemId
-     * @return bool
      * @throws Exception
      */
     public function checkFileExists(?string $path = null, ?string $itemId = null): bool
     {
         $fileMetaData = $this->requestFileMetadata($path, $itemId);
 
-        if (isset($fileMetaData['folder'])) {
-            throw new \Exception('Check for file exists but path is actually a folder', 2231);
+        if (isset($fileMetaData['directory'])) {
+            throw new \Exception('Check for file exists but path is actually a directory', 2231);
         }
 
-        return ($fileMetaData !== null);
+        return $fileMetaData !== null;
     }
 
     /**
-     * @param string|null $path
-     * @param string|null $itemId
-     * @return int
      * @throws Exception
      */
     public function checkFileLastModified(?string $path = null, ?string $itemId = null): int
@@ -165,18 +109,17 @@ class FileService
             throw new \Exception('Microsoft SP Drive Request: File not found. ' . __FUNCTION__, 2241);
         }
 
-        if ( ! isset($fileMetaData['lastModifiedDateTime'])) {
-            throw new \Exception('Microsoft SP Drive Request: Cannot parse the body of the sharepoint drive request. ' . __FUNCTION__, 2242);
+        if (! isset($fileMetaData['lastModifiedDateTime'])) {
+            throw new \Exception(
+                'Microsoft SP Drive Request: Cannot parse the body of the sharepoint drive request. ' . __FUNCTION__,
+                2242
+            );
         }
 
         return (new \DateTime($fileMetaData['lastModifiedDateTime']))->getTimestamp();
     }
 
-
     /**
-     * @param string|null $path
-     * @param string|null $itemId
-     * @return int
      * @throws Exception
      */
     public function checkFileMimeType(?string $path = null, ?string $itemId = null): int
@@ -188,17 +131,17 @@ class FileService
             throw new \Exception('Microsoft SP Drive Request: File not found. ' . __FUNCTION__, 2251);
         }
 
-        if ( ! isset($fileMetaData['file'], $fileMetaData['file']['mimeType'])) {
-            throw new \Exception('Microsoft SP Drive Request: Cannot parse the body of the sharepoint drive request. ' . __FUNCTION__, 2252);
+        if (! isset($fileMetaData['file'], $fileMetaData['file']['mimeType'])) {
+            throw new \Exception(
+                'Microsoft SP Drive Request: Cannot parse the body of the sharepoint drive request. ' . __FUNCTION__,
+                2252
+            );
         }
 
         return $fileMetaData['file']['mimeType'];
     }
 
     /**
-     * @param string|null $path
-     * @param string|null $itemId
-     * @return int
      * @throws Exception
      */
     public function checkFileSize(?string $path = null, ?string $itemId = null): int
@@ -210,17 +153,17 @@ class FileService
             throw new \Exception('Microsoft SP Drive Request: File not found. ' . __FUNCTION__, 2261);
         }
 
-        if ( ! isset($fileMetaData['size'])) {
-            throw new \Exception('Microsoft SP Drive Request: Cannot parse the body of the sharepoint drive request. ' . __FUNCTION__, 2263);
+        if (! isset($fileMetaData['size'])) {
+            throw new \Exception(
+                'Microsoft SP Drive Request: Cannot parse the body of the sharepoint drive request. ' . __FUNCTION__,
+                2263
+            );
         }
 
         return $fileMetaData['size'];
     }
 
     /**
-     * @param string $path
-     * @param string $content
-     * @param string $mimeType
      * @return array|null
      * @throws Exception
      */
@@ -229,21 +172,27 @@ class FileService
         $parent = explode('/', $path);
         $fileName = array_pop($parent);
 
-        // Create parent folders if not exists
-        $parentFolder = sprintf('/%s', ltrim(implode('/', $parent), '/'));
-        if($parentFolder !== '/') {
-            $this->folderService->createFolderRecursive($parentFolder);
+        // Create parent directory if not exists
+        $parentDirectory = sprintf('/%s', ltrim(implode('/', $parent), '/'));
+        if ($parentDirectory !== '/') {
+            $this->directoryService->createDirectoryRecursive($parentDirectory);
         }
 
-        $parentFolderMeta = $this->folderService->requestFolderMetadata($parentFolder);
-        $parentFolderId = $parentFolderMeta['id'];
+        $parentDirectoryMeta = $this->directoryService->requestDirectoryMetadata($parentDirectory);
+        if ($parentDirectoryMeta === null) {
+            throw new \Exception(
+                'Microsoft SP Drive Request: No metadata found',
+                500
+            );
+        }
+        $parentDirectoryId = $parentDirectoryMeta['id'];
 
-        $url = $this->getFileBaseUrl(null, $parentFolderId, sprintf(':/%s:/content', $fileName));
+        $url = $this->getFileBaseUrl(null, $parentDirectoryId, sprintf(':/%s:/content', $fileName));
 
         $response = $this->apiConnector->request('PUT', $url, [], [], $content, [
             RequestOptions::HEADERS => [
-                'Content-Type' => $mimeType
-            ]
+                'Content-Type' => $mimeType,
+            ],
         ]);
 
         if ($response) {
@@ -253,9 +202,6 @@ class FileService
     }
 
     /**
-     * @param string $path
-     * @param string $targetDirectory
-     * @param string|null $newName
      * @return array
      * @throws Exception
      */
@@ -269,20 +215,26 @@ class FileService
         }
         $url = $this->getFileBaseUrl($path, $metadata['id']);
 
-        // get target folder id
-        $folderMeta = $this->folderService->requestFolderMetadata($targetDirectory);
+        // get target directory id
+        $directoryMeta = $this->directoryService->requestDirectoryMetadata($targetDirectory);
 
-        if ($folderMeta === null) {
-            // create folders recursive
-            $this->folderService->createFolderRecursive($targetDirectory);
-            $folderMeta = $this->folderService->requestFolderMetadata($targetDirectory);
+        if ($directoryMeta === null) {
+            // create directories recursive
+            $this->directoryService->createDirectoryRecursive($targetDirectory);
+            $directoryMeta = $this->directoryService->requestDirectoryMetadata($targetDirectory);
+            if ($directoryMeta === null) {
+                throw new \Exception(
+                    'Unable to create the directory ' . __FUNCTION__,
+                    500
+                );
+            }
         }
 
         // Build request
         $body = [
             'parentReference' => [
-                'id' => $folderMeta['id'],
-            ]
+                'id' => $directoryMeta['id'],
+            ],
         ];
 
         // add new name to request body when not null
@@ -290,19 +242,12 @@ class FileService
             $body['name'] = $newName;
         }
 
-        $response = $this->apiConnector->request('PATCH', $url, [], [], null, [
-            RequestOptions::JSON => $body
+        return $this->apiConnector->request('PATCH', $url, [], [], null, [
+            RequestOptions::JSON => $body,
         ]);
-
-        return $response;
-
     }
 
     /**
-     * @param string $path
-     * @param string $targetDirectory
-     * @param string|null $newName
-     * @return bool
      * @throws Exception
      */
     public function copyFile(string $path, string $targetDirectory, ?string $newName = null): bool
@@ -315,21 +260,27 @@ class FileService
         }
         $url = $this->getFileBaseUrl(null, $metadata['id'], '/copy');
 
-        // get target folder id
-        $folderMeta = $this->folderService->requestFolderMetadata($targetDirectory);
+        // get target directory id
+        $directoryMeta = $this->directoryService->requestDirectoryMetadata($targetDirectory);
 
-        if ($folderMeta === null) {
-            // create folders recursive
-            $this->folderService->createFolderRecursive($targetDirectory);
-            $folderMeta = $this->folderService->requestFolderMetadata($targetDirectory);
+        if ($directoryMeta === null) {
+            // create directories recursive
+            $this->directoryService->createDirectoryRecursive($targetDirectory);
+            $directoryMeta = $this->directoryService->requestDirectoryMetadata($targetDirectory);
+            if ($directoryMeta === null) {
+                throw new \Exception(
+                    'Unable to create the directory ' . __FUNCTION__,
+                    500
+                );
+            }
         }
 
         // Build request
         $body = [
             'parentReference' => [
                 'driveId' => $this->getDriveId(),
-                'id' => $folderMeta['id'],
-            ]
+                'id' => $directoryMeta['id'],
+            ],
         ];
 
         // add new name to request body when not null
@@ -338,20 +289,17 @@ class FileService
         }
 
         $result = $this->apiConnector->request('POST', $url, [], [], null, [
-            RequestOptions::JSON => $body
+            RequestOptions::JSON => $body,
         ]);
 
-        if(isset($result['error'], $result['error']['code']) && $result['error']['code'] === 'nameAlreadyExists') {
+        if (isset($result['error'], $result['error']['code']) && $result['error']['code'] === 'nameAlreadyExists') {
             throw new Exception('Target file already exists, this is not supported yet.');
         }
 
-        return ($result === '');
+        return $result === '';
     }
 
     /**
-     * @param string|null $path
-     * @param string|null $itemId
-     * @return bool
      * @throws Exception
      */
     public function deleteFile(?string $path = null, ?string $itemId = null): bool
@@ -364,5 +312,32 @@ class FileService
         } catch (Exception $exception) {
             return false;
         }
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function getFileBaseUrl(?string $path = null, ?string $itemId = null, ?string $suffix = null): string
+    {
+        if ($path === null && $itemId === null) {
+            throw new \Exception(
+                'Microsoft SP Drive Request: Not all the parameters are correctly set. ' . __FUNCTION__,
+                2211
+            );
+        }
+
+        // /drives/{drive-id}/items/{item-id}
+        // /drives/{drive-id}/root:/{item-path}
+        // https://docs.microsoft.com/en-us/graph/api/driveitem-get?view=graph-rest-1.0&tabs=http
+        if ($itemId !== null) {
+            return sprintf('/v1.0/drives/%s/items/%s%s', $this->getDriveId(), $itemId, ($suffix ?? ''));
+        }
+        $path = ltrim($path, '/');
+        return sprintf(
+            '/v1.0/drives/%s/items/root:/%s%s',
+            $this->getDriveId(),
+            $path,
+            ($suffix !== null ? ':' . $suffix : '')
+        );
     }
 }
