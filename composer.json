@@ -1,0 +1,37 @@
+{
+    "name": "enabel/flysystem-sharepoint",
+    "description": "Adapter for flysystem to work with sharepoint",
+    "license": "GNU AGPLv3",
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "authors": [
+        {
+            "name": "Damien LAGAE",
+            "email": "damien.lagae@enabel.be"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Enabel\\Sharepoint\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Enabel\\Sharepoint\\Tests\\": "tests/"
+        }
+    },
+    "require": {
+        "php": "^7.4 || ^8.0",
+        "ext-json": "*",
+        "guzzlehttp/guzzle": "^7.4",
+        "league/flysystem": "^3.0"
+    },
+    "require-dev": {
+        "league/flysystem-adapter-test-utilities": "^3.0",
+        "phpunit/phpunit": "^9.5"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}
