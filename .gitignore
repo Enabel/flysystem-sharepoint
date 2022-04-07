@@ -4,3 +4,6 @@
 # PHPUnit
 .phpunit.result.cache
 /phpunit.xml
+
+# Test & Dev
+/example/.env

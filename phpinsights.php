@@ -26,6 +26,7 @@ return [
     'preset' => 'default',
     'ide' => 'phpstorm',
     'exclude' => [
+        'example',
         'tmp',
         'phpinsights.php',
     ],
