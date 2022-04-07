@@ -1,6 +1,6 @@
 # Flysystem adapter for Sharepoint
 
-This package contains a dapater for Flysystem to work with Sharepoint (Graph API)
+This package contains an adapter for Flysystem to work with Sharepoint (Graph API)
 
 ## Requirement
 * You need PHP 7.4 or newer, with json support.
@@ -43,23 +43,14 @@ Example:
 - Sharepoint site url: `https://enabelbe.sharepoint.com/sites/test-storage/Shared%20Documents/Forms/AllItems.aspx`
 - Sharepoint site variable:  `$sharepointSite = 'test-storage'`
 
+    
+### Use standalone   
 
-``` php
-use Enabel\Sharepoint\Flysystem\FlysystemSharepointAdapter;
-use Enabel\Sharepoint\Flysystem\SharepointConnector;
-use League\Flysystem\Filesystem;
+The documentation is available [here](./docs/standalone.md).
 
-$tenantId = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
-$clientId = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
-$clientSecret = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
-$sharepointSite = 'your-path-to-your-site';
+### Use with Symfony
 
-$connector = new SharepointConnector($tenantId, $clientId, $clientSecret, $sharepointSite);
-
-$adapter = new FlysystemSharepointAdapter($connector);
-
-$flysystem = new Filesystem($adapter);
-```
+The documentation is available [here](./docs/symfony.md).
 
 ## Tests
 
