@@ -51,8 +51,12 @@ class FlysystemSharepointAdapter implements FilesystemAdapter
      */
     public function writeStream(string $path, $contents, Config $config): void
     {
-        // TODO: Implement writeStream() method.
-        throw new \Exception('Not implemented yet!');
+        $streamContent = stream_get_contents($contents);
+        if ($streamContent !== false) {
+            $this->write($path, $streamContent, $config);
+        } else {
+            throw new \Exception('Cannot write stream (empty content)', 500);
+        }
     }
 
     public function read(string $path): string
@@ -66,8 +70,18 @@ class FlysystemSharepointAdapter implements FilesystemAdapter
      */
     public function readStream(string $path)
     {
-        // TODO: Implement readStream() method.
-        throw new \Exception('Not implemented yet!');
+        $content = $this->read($path);
+        if ($content) {
+            $stream = fopen('php://memory', 'r+');
+            if ($stream !== false) {
+                fwrite($stream, $content);
+                rewind($stream);
+
+                return $stream;
+            }
+        }
+
+        throw new \Exception('Cannot read stream (empty content)', 500);
     }
 
     public function delete(string $path): void
@@ -92,30 +106,28 @@ class FlysystemSharepointAdapter implements FilesystemAdapter
 
     public function visibility(string $path): FileAttributes
     {
-        throw new \Exception('Not implemented');
+        return $this->getFileAttributes($path);
     }
 
     public function mimeType(string $path): FileAttributes
     {
-        //TODO: WIP
-        $this->connector->getFile()->checkFileMimeType($path);
-        throw new \Exception('Not implemented yet!');
+        return $this->getFileAttributes($path);
     }
 
     public function lastModified(string $path): FileAttributes
     {
-        //TODO: WIP
-        $this->connector->getFile()->checkFileLastModified($path);
-        throw new \Exception('Not implemented yet!');
+        return $this->getFileAttributes($path);
     }
 
     public function fileSize(string $path): FileAttributes
     {
-        //TODO: WIP
-        $this->connector->getFile()->checkFileSize($path);
-        throw new \Exception('Not implemented yet!');
+        return $this->getFileAttributes($path);
     }
 
+    /**
+     * @return array<string, mixed>
+     * @throws \Exception
+     */
     public function listContents(string $path, bool $deep): iterable
     {
         return $this->connector->getDirectory()->requestDirectoryItems($path);
@@ -141,5 +153,17 @@ class FlysystemSharepointAdapter implements FilesystemAdapter
         $parentDirectory = sprintf('/%s', ltrim(implode('/', $parent), '/'));
 
         $this->connector->getFile()->copyFile($source, $parentDirectory, $fileName);
+    }
+
+    private function getFileAttributes(string $path): FileAttributes
+    {
+        return new FileAttributes(
+            $path,
+            $this->connector->getFile()->checkFileSize($path),
+            null,
+            $this->connector->getFile()->checkFileLastModified($path),
+            $this->connector->getFile()->checkFileMimeType($path),
+            $this->connector->getFile()->requestFileMetadata($path) ?? []
+        );
     }
 }

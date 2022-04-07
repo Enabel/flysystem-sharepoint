@@ -48,7 +48,7 @@ class ApiConnector
     }
 
     /**
-     * @return array
+     * @return array<string, bool>
      */
     public function getVerify(): array
     {
@@ -121,7 +121,7 @@ class ApiConnector
     }
 
     /**
-     * @return array|null
+     * @return array<string, string>|null
      */
     public function getBasicAuth(): ?array
     {
@@ -137,6 +137,9 @@ class ApiConnector
         return $this;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getAuthenticationHeader(): array
     {
         if ($this->getBasicAuth() !== null) {

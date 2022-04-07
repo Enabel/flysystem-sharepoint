@@ -60,7 +60,7 @@ class FileService
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      * @throws Exception
      */
     public function requestFileMetadata(?string $path = null, ?string $itemId = null): ?array
@@ -122,7 +122,7 @@ class FileService
     /**
      * @throws Exception
      */
-    public function checkFileMimeType(?string $path = null, ?string $itemId = null): int
+    public function checkFileMimeType(?string $path = null, ?string $itemId = null): string
     {
         // Will throw exception if file not exists
         $fileMetaData = $this->requestFileMetadata($path, $itemId);
@@ -164,7 +164,7 @@ class FileService
     }
 
     /**
-     * @return array|null
+     * @return array<string,mixed>|null
      * @throws Exception
      */
     public function writeFile(string $path, string $content, string $mimeType = 'text/plain'): ?array
@@ -202,7 +202,7 @@ class FileService
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      * @throws Exception
      */
     public function moveFile(string $path, string $targetDirectory, ?string $newName = null): array

@@ -28,7 +28,7 @@ class AuthenticationService
      * 'msdomain' => Either the friendly domain name of the Azure AD tenant
      *
      * @link https://docs.microsoft.com/en-us7/azure/active-directory/develop/active-directory-v2-protocols#endpoints
-     * @return array
+     * @return array<string, mixed>
      * @throws Exception
      */
     public function requestToken(string $tenantId, string $clientId, string $clientSecret): array

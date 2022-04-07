@@ -48,7 +48,7 @@ class DirectoryService
     /**
      * List all items in a specific directory
      *
-     * @return array
+     * @return array<string, mixed>
      * @throws Exception
      */
     public function requestDirectoryItems(?string $directory = '/', ?string $itemId = null): array
@@ -71,7 +71,7 @@ class DirectoryService
     /**
      * Read the directory metadata and so check if it exists
      *
-     * @return array
+     * @return array<string, mixed>
      * @throws Exception
      */
     public function requestDirectoryMetadata(?string $directory = null, ?string $itemId = null): ?array
@@ -109,7 +109,7 @@ class DirectoryService
     }
 
     /**
-     * @return array|null
+     * @return array<string, mixed>|null
      * @throws Exception
      */
     public function createDirectory(string $directory, ?string $parentDirectoryId = null): ?array
@@ -136,7 +136,7 @@ class DirectoryService
         // Build request
         $body = [
             'name' => $directoryName,
-            'directory' => [],
+            'folder' => new \stdClass(),
         ];
 
         try {
@@ -148,25 +148,33 @@ class DirectoryService
         }
     }
 
+    /**
+     * @return array<string, mixed>|null
+     * @throws Exception
+     */
     public function createDirectoryRecursive(string $directory): ?array
     {
         $pathParts = explode('/', $directory);
 
-        $buildPath = '';
         $parentDirectoryId = null;
         $createDirectoryResponse = null;
         foreach ($pathParts as $path) {
-            $buildPath .= $path;
-            $directoryMeta = $this->requestDirectoryMetadata($buildPath);
+            $directoryMeta = $this->requestDirectoryMetadata($path);
 
             if ($directoryMeta !== null) {
                 $parentDirectoryId = $directoryMeta['id'];
                 continue;
             }
 
-            $createDirectoryResponse = $this->createDirectory($buildPath, $parentDirectoryId);
+            $createDirectoryResponse = $this->createDirectory($path, $parentDirectoryId);
             if ($createDirectoryResponse === null) {
-                throw new \Exception(sprintf('Cannot create recursive the directory %s', $buildPath), 2361);
+                throw new \Exception(sprintf('Cannot create recursive the directory %s', $path), 2361);
+            }
+            if (isset($createDirectoryResponse['error'])) {
+                throw new \Exception(
+                    sprintf('Cannot create the directory %s (%s)', $path, $createDirectoryResponse['error']['message']),
+                    2361
+                );
             }
 
             $parentDirectoryId = $createDirectoryResponse['id'];

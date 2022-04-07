@@ -45,7 +45,7 @@ class DriveService
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      * @throws Exception
      */
     public function requestDrive(string $sharepointSiteId): array
@@ -93,7 +93,7 @@ class DriveService
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      * @throws Exception
      */
     public function requestResourceMetadata(?string $path = null, ?string $itemId = null): ?array

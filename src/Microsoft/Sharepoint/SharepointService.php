@@ -21,7 +21,7 @@ class SharepointService
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      * @throws Exception
      */
     public function requestRootSite(): array
@@ -59,7 +59,7 @@ class SharepointService
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      * @throws Exception
      */
     public function requestSiteBySiteName(string $siteHostname, string $siteName): array
