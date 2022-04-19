@@ -3,7 +3,7 @@
 This package contains an adapter for Flysystem to work with Sharepoint (Graph API)
 
 ## Requirement
-* You need PHP 7.4 or newer, with json support.
+* You need PHP 8.0 or newer, with json support.
 
 ## Installation
 
