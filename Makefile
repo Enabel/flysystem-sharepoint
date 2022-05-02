@@ -33,7 +33,7 @@ vendor/autoload.php: composer.lock
 
 composer-install: vendor/autoload.php  ## Install vendors according to the current composer.lock file
 
-composer-update: ./symfony composer.json ## Update vendors according to the composer.json file
+composer-update: composer.json ## Update vendors according to the composer.json file
 	$(COMPOSER) update
 
 ## —— Docker 🐳 ————————————————————————————————————————————————————————————————
