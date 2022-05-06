@@ -17,7 +17,8 @@ if (isset($env['TENANT_ID'], $env['CLIENT_ID'], $env['CLIENT_SECRET'], $env['SHA
         $env['TENANT_ID'],
         $env['CLIENT_ID'],
         $env['CLIENT_SECRET'],
-        $env['SHAREPOINT_SITE']
+        $env['SHAREPOINT_SITE'],
+        $env['SHAREPOINT_DRIVE']
     );
 } else {
     throw new \Exception(

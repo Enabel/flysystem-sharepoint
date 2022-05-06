@@ -19,8 +19,9 @@ $tenantId = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
 $clientId = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
 $clientSecret = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
 $sharepointSite = 'your-path-to-your-site';
+$sharepointDrive = 'your-site-library'; // Leave blank if you use the default `Shared Documents`
 
-$connector = new SharepointConnector($tenantId, $clientId, $clientSecret, $sharepointSite);
+$connector = new SharepointConnector($tenantId, $clientId, $clientSecret, $sharepointSite, $sharepointDrive);
 
 $adapter = new FlysystemSharepointAdapter($connector);
 
