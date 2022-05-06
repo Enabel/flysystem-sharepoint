@@ -35,13 +35,15 @@ You need to request a new clientId and clientSecret for a new application on Azu
 11. Go in the menu to `Certificates & secrets`
 12. Click on `new client secret`
 13. Give it a description and expiry date and the value will be your `$clientSecret`
-14. The last parameter will be the sharepoint 'slug', this is part of the url of the sharepoint site what you want to use and creation of sharepoint site is out of scope of this readme.  
-    When you sharepoint url is like `https://{tenant}.sharepoint.com/sites/{site-slug}/Shared%20Documents/Forms/AllItems.aspx`  
+14. The two last parameter will be the sharepoint 'slug' & 'library', this is part of the url of the sharepoint site what you want to use and creation of sharepoint site is out of scope of this readme.  
+    When you sharepoint url is like `https://{tenant}.sharepoint.com/sites/{site-slug}/{site-library}/Forms/AllItems.aspx`  
     You need to set the `$sharepointSite` as `{site-slug}`
+    and the `$sharepointDrive` as `{site-library}` by default `Shared%20Documents`
 
 Example:    
-- Sharepoint site url: `https://enabelbe.sharepoint.com/sites/test-storage/Shared%20Documents/Forms/AllItems.aspx`
+- Sharepoint site url: `https://enabelbe.sharepoint.com/sites/test-storage/Documentations/Forms/AllItems.aspx`
 - Sharepoint site variable:  `$sharepointSite = 'test-storage'`
+- Sharepoint drive variable:  `$sharepointDrive = 'Documentations'`
 
     
 ### Use standalone   
