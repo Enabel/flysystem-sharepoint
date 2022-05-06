@@ -44,13 +44,64 @@ class DriveService
         return $this;
     }
 
+    public function requestDriveIdByName(string $driveName, string $sharepointSiteId): string
+    {
+        $drives = $this->requestDrives($sharepointSiteId);
+
+        foreach ($drives as $drive) {
+            if (!isset($drive['name'])) {
+                throw new \Exception(
+                    'Microsoft SP Drive Request: Cannot parse the body of the sharepoint drive request. ' .
+                    __FUNCTION__,
+                    2121
+                );
+            }
+            if ($drive['name'] === $driveName) {
+                if (!isset($drive['id'])) {
+                    throw new \Exception(
+                        'Microsoft SP Drive Request: Cannot parse the body of the sharepoint drive request. ' .
+                        __FUNCTION__,
+                        2121
+                    );
+                }
+
+                return $drive['id'];
+            }
+        }
+        throw new \Exception('Microsoft SP Drive Request: Drive "' . $driveName . '" not found. ' . __FUNCTION__, 2121);
+    }
+
+    /**
+     * @return array<string, mixed>
+     * @throws Exception
+     */
+    public function requestDrives(string $sharepointSiteId): array
+    {
+        // /sites/{siteId}/drives
+        $url = sprintf('/v1.0/sites/%s/drives', $sharepointSiteId);
+
+        $response = $this->apiConnector->request('GET', $url);
+
+        if (
+            !isset(
+                $response['value']
+            )
+        ) {
+            throw new \Exception(
+                'Microsoft SP Drive Request: Cannot parse the body of the sharepoint drive request. ' . __FUNCTION__,
+                2111
+            );
+        }
+
+        return $response['value'];
+    }
+
     /**
      * @return array<string, mixed>
      * @throws Exception
      */
     public function requestDrive(string $sharepointSiteId): array
     {
-
         // /sites/{siteId}/drive
         $url = sprintf('/v1.0/sites/%s/drive', $sharepointSiteId);
 
