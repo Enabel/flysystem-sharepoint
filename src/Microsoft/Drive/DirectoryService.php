@@ -155,11 +155,14 @@ class DirectoryService
     public function createDirectoryRecursive(string $directory): ?array
     {
         $pathParts = explode('/', $directory);
-
         $parentDirectoryId = null;
         $createDirectoryResponse = null;
+        $fullPathArray = [];
+
         foreach ($pathParts as $path) {
-            $directoryMeta = $this->requestDirectoryMetadata($path);
+            $fullPathArray[] = $path;
+            $fullPath = sprintf('/%s', ltrim(implode('/', $fullPathArray), '/'));
+            $directoryMeta = $this->requestDirectoryMetadata($fullPath);
 
             if ($directoryMeta !== null) {
                 $parentDirectoryId = $directoryMeta['id'];
@@ -172,7 +175,11 @@ class DirectoryService
             }
             if (isset($createDirectoryResponse['error'])) {
                 throw new \Exception(
-                    sprintf('Cannot create the directory %s (%s)', $path, $createDirectoryResponse['error']['message']),
+                    sprintf(
+                        'Cannot create the directory %s (%s)',
+                        $path,
+                        $createDirectoryResponse['error']['message']
+                    ),
                     2361
                 );
             }
