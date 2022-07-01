@@ -159,7 +159,7 @@ class DirectoryService
         $parentDirectoryId = null;
         $createDirectoryResponse = null;
         foreach ($pathParts as $path) {
-            $directoryMeta = $this->requestDirectoryMetadata($path);
+            $directoryMeta = $this->requestDirectoryMetadata($path, $parentDirectoryId);
 
             if ($directoryMeta !== null) {
                 $parentDirectoryId = $directoryMeta['id'];
