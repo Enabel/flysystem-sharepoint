@@ -162,6 +162,34 @@ class FileService
 
         return $fileMetaData['size'];
     }
+    
+    protected function writeLargeFile(string $fileName, string $parentDirectoryId, string $content, string $mimeType = 'text/plain'): ?array
+    {
+        $url = $this->getFileBaseUrl(null, $parentDirectoryId, sprintf(':/%s:/createUploadSession', $fileName));
+        $session = $this->apiConnector->request('POST', $url, [
+            RequestOptions::BODY => [
+                '@microsoft.graph.conflictBehavior' => 'replace',
+            ],
+        ]);
+        $uploadUrl = $session['uploadUrl'];
+        $chunks = str_split($content, 320*1024*20); //chunks must be multiples of 320KiB, recommended 5-10MiB
+        $byte_range_start = 0;
+        $byte_range_end = -1;
+        $bytes_total = strlen($content);
+        $response =  null;
+        foreach($chunks as $chunk) {
+            $byte_range_end += strlen($chunk);
+            $response = $this->apiConnector->request('PUT', $uploadUrl, [], [], $chunk,[
+                RequestOptions::HEADERS => [
+                    'Content-Length' => strlen($chunk),
+                    'Content-Range' => "bytes $byte_range_start-$byte_range_end/$bytes_total",
+                    'Content-Type' => $mimeType,
+                ],
+            ]);
+            $byte_range_start = $byte_range_end + 1;
+        }
+        return $response;
+    }
 
     /**
      * @return array<string,mixed>|null
@@ -186,7 +214,9 @@ class FileService
             );
         }
         $parentDirectoryId = $parentDirectoryMeta['id'];
-
+        if (strlen($content) > 4*1024*1024) {
+            return $this->writeLargeFile($fileName, $parentDirectoryId, $content, $mimeType);
+        }
         $url = $this->getFileBaseUrl(null, $parentDirectoryId, sprintf(':/%s:/content', $fileName));
 
         $response = $this->apiConnector->request('PUT', $url, [], [], $content, [
